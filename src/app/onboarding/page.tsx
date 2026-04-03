@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { updateBrandVoice, updateActivation, getActivation, saveBrandProfile } from '@/lib/storage';
@@ -10,10 +10,51 @@ import {
   Mail, FileText, Video, Hash, AtSign, Camera, Play,
   MessageSquare, PenTool, Globe, Loader2, Sparkles,
   ChevronRight, User, Bot, Send, CheckCircle2, Star, ClipboardList,
-  Target, ShieldQuestion, Lightbulb,
+  Target, ShieldQuestion, Lightbulb, AlertCircle, RefreshCw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// ─── Session Storage Helpers ──────────────────────────────────
+const ONBOARDING_DRAFT_KEY = 'cf_onboarding_draft';
+
+interface OnboardingDraft {
+  step: number;
+  company: string;
+  industry: string;
+  targetAudience: string;
+  websiteUrl: string;
+  voicePath: 'questions' | 'paste' | 'interview' | null;
+  qWhatYouSell: string;
+  qWhyNo: string;
+  qCompetitorWrong: string;
+  qBestCustomer: string;
+  qBarExplanation: string;
+  qStrongOpinion: string;
+  samples: string[];
+  channels: string[];
+  savedAt: string;
+}
+
+function saveDraft(draft: Partial<OnboardingDraft>) {
+  try {
+    const existing = loadDraft();
+    const merged = { ...existing, ...draft, savedAt: new Date().toISOString() };
+    sessionStorage.setItem(ONBOARDING_DRAFT_KEY, JSON.stringify(merged));
+  } catch { /* ignore */ }
+}
+
+function loadDraft(): OnboardingDraft | null {
+  try {
+    const raw = sessionStorage.getItem(ONBOARDING_DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function clearDraft() {
+  try { sessionStorage.removeItem(ONBOARDING_DRAFT_KEY); } catch { /* ignore */ }
+}
+
+// ─── Constants ────────────────────────────────────────────────
 const STEPS = [
   { title: 'Your Business', description: 'Tell us about your company', icon: Building2 },
   { title: 'Your Voice & Strategy', description: 'Help us understand your business deeply', icon: Mic2 },
@@ -82,6 +123,9 @@ export default function OnboardingPage() {
   const [businessProfileData, setBusinessProfileData] = useState<BusinessProfile | null>(null);
   const [brandIntelligence, setBrandIntelligence] = useState<BrandIntelligenceProfile | null>(null);
 
+  // Error state
+  const [profileError, setProfileError] = useState<string | null>(null);
+
   // Step 2: Channels
   const [channels, setChannels] = useState<string[]>([]);
 
@@ -89,15 +133,55 @@ export default function OnboardingPage() {
   const [generatingFirst, setGeneratingFirst] = useState(false);
   const [firstContent, setFirstContent] = useState<any>(null);
 
+  // ─── Restore draft on mount ─────────────────────────────────
+  useEffect(() => {
+    const draft = loadDraft();
+    if (draft) {
+      if (draft.step) setStep(draft.step);
+      if (draft.company) setCompany(draft.company);
+      if (draft.industry) setIndustry(draft.industry);
+      if (draft.targetAudience) setTargetAudience(draft.targetAudience);
+      if (draft.websiteUrl) setWebsiteUrl(draft.websiteUrl);
+      if (draft.voicePath) setVoicePath(draft.voicePath);
+      if (draft.qWhatYouSell) setQWhatYouSell(draft.qWhatYouSell);
+      if (draft.qWhyNo) setQWhyNo(draft.qWhyNo);
+      if (draft.qCompetitorWrong) setQCompetitorWrong(draft.qCompetitorWrong);
+      if (draft.qBestCustomer) setQBestCustomer(draft.qBestCustomer);
+      if (draft.qBarExplanation) setQBarExplanation(draft.qBarExplanation);
+      if (draft.qStrongOpinion) setQStrongOpinion(draft.qStrongOpinion);
+      if (draft.samples?.length) setSamples(draft.samples);
+      if (draft.channels?.length) setChannels(draft.channels);
+    }
+  }, []);
+
+  // ─── Load user data ─────────────────────────────────────────
   useEffect(() => {
     if (user) {
-      setCompany(user.company || '');
-      setIndustry(user.industry || '');
-      setTargetAudience(user.targetAudience || '');
-      setWebsiteUrl(user.websiteUrl || '');
-      setChannels(user.channels || []);
+      if (!loadDraft()) {
+        setCompany(user.company || '');
+        setIndustry(user.industry || '');
+        setTargetAudience(user.targetAudience || '');
+        setWebsiteUrl(user.websiteUrl || '');
+        setChannels(user.channels || []);
+      }
     }
   }, [user]);
+
+  // ─── Auto-save draft on changes ─────────────────────────────
+  const saveDraftDebounced = useCallback(() => {
+    saveDraft({
+      step, company, industry, targetAudience, websiteUrl, voicePath,
+      qWhatYouSell, qWhyNo, qCompetitorWrong, qBestCustomer, qBarExplanation, qStrongOpinion,
+      samples, channels,
+    });
+  }, [step, company, industry, targetAudience, websiteUrl, voicePath,
+    qWhatYouSell, qWhyNo, qCompetitorWrong, qBestCustomer, qBarExplanation, qStrongOpinion,
+    samples, channels]);
+
+  useEffect(() => {
+    const timer = setTimeout(saveDraftDebounced, 500);
+    return () => clearTimeout(timer);
+  }, [saveDraftDebounced]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -107,7 +191,7 @@ export default function OnboardingPage() {
     setChannels(prev => prev.includes(key) ? prev.filter(c => c !== key) : [...prev, key]);
   };
 
-  // ─── URL Analysis ───────────────────────────────────────────────
+  // ─── URL Analysis ───────────────────────────────────────────
   const analyzeUrl = async () => {
     if (!websiteUrl) return;
     setUrlAnalyzing(true);
@@ -123,7 +207,7 @@ export default function OnboardingPage() {
     setUrlAnalyzing(false);
   };
 
-  // ─── Start AI Interview ─────────────────────────────────────────
+  // ─── Start AI Interview ─────────────────────────────────────
   const startInterview = async () => {
     setInterviewLoading(true);
     const openingMsg: InterviewMessage = { role: 'ai', content: '' };
@@ -147,7 +231,7 @@ export default function OnboardingPage() {
     setInterviewLoading(false);
   };
 
-  // ─── Send Interview Message ─────────────────────────────────────
+  // ─── Send Interview Message ─────────────────────────────────
   const sendInterviewMessage = async () => {
     if (!interviewInput.trim() || interviewLoading) return;
     const userMsg: InterviewMessage = { role: 'user', content: interviewInput.trim() };
@@ -167,10 +251,8 @@ export default function OnboardingPage() {
       const data = await res.json();
 
       if (data.isComplete && data.profile) {
-        // Interview complete, profile extracted
         setInterviewComplete(true);
         setInterviewMessages(prev => [...prev, { role: 'ai', content: data.message }]);
-        // Save the extracted profile directly
         const profile: BrandIntelligenceProfile = {
           ...data.profile,
           createdAt: new Date().toISOString(),
@@ -208,8 +290,8 @@ export default function OnboardingPage() {
           updatedAt: new Date().toISOString(),
         });
         setVoiceBuilt(true);
+        setProfileError(null);
       } else {
-        // Continue conversation
         setInterviewMessages(prev => [...prev, { role: 'ai', content: data.message }]);
       }
     } catch {
@@ -231,9 +313,10 @@ export default function OnboardingPage() {
     setInterviewLoading(false);
   };
 
-  // ─── Build Voice Profile ────────────────────────────────────────
+  // ─── Build Voice Profile ────────────────────────────────────
   const buildVoiceProfile = async () => {
     setBuildingProfile(true);
+    setProfileError(null);
     try {
       let answers: Record<string, string> = {};
 
@@ -258,25 +341,21 @@ export default function OnboardingPage() {
       }
 
       // COMMAND 1: Brand Intelligence Extractor
-      let data: any = {};
-      try {
-        const res = await fetch('/api/extract-profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            answers: { ...answers, contentSamples: samples.filter(s => s.trim()) },
-            company,
-            industry,
-            targetAudience,
-          }),
-        });
-        if (res.ok) {
-          data = await res.json();
-        } else {
-          console.error('Profile extraction API failed:', res.status);
-        }
-      } catch (fetchErr) {
-        console.error('Profile extraction fetch failed:', fetchErr);
+      const res = await fetch('/api/extract-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          answers: { ...answers, contentSamples: samples.filter(s => s.trim()) },
+          company,
+          industry,
+          targetAudience,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || `Server error (${res.status}). Please try again.`);
       }
 
       if (data.profile) {
@@ -289,7 +368,6 @@ export default function OnboardingPage() {
         setBrandIntelligence(profile);
         saveBrandProfile(profile);
 
-        // Set legacy voice profile for display
         const vp = {
           summary: data.profile.voiceDNA?.summary || 'Professional voice profile built.',
           tone: data.profile.voiceDNA?.openingPatterns || ['Direct', 'Authentic'],
@@ -330,21 +408,18 @@ export default function OnboardingPage() {
           updatedAt: new Date().toISOString(),
         });
         setVoiceBuilt(true);
+        setProfileError(null);
+      } else {
+        throw new Error('No profile data returned. Please try again.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Profile build error:', err);
-      setVoiceProfile({
-        summary: `Professional ${industry || 'B2B'} voice with authority and clarity.`,
-        tone: ['Direct', 'Authentic', 'Practical'],
-        voiceConfidence: 60,
-        personalityInsight: 'Your voice combines expertise with approachability.',
-      });
-      setVoiceBuilt(true);
+      setProfileError(err.message || 'Something went wrong building your profile. Please try again.');
     }
     setBuildingProfile(false);
   };
 
-  // ─── Generate First Content ─────────────────────────────────────
+  // ─── Generate First Content ─────────────────────────────────
   const generateFirstContent = async () => {
     setGeneratingFirst(true);
     try {
@@ -368,7 +443,7 @@ export default function OnboardingPage() {
     setGeneratingFirst(false);
   };
 
-  // ─── Finish Onboarding ──────────────────────────────────────────
+  // ─── Finish Onboarding ──────────────────────────────────────
   const finishOnboarding = () => {
     updateUser({
       company, industry, targetAudience, websiteUrl, channels,
@@ -380,10 +455,11 @@ export default function OnboardingPage() {
     if (voiceBuilt) activation.milestones.voiceProfileBuilt = true;
     if (firstContent) activation.milestones.firstContentGenerated = true;
     updateActivation(activation);
+    clearDraft();
     router.push('/dashboard');
   };
 
-  // ─── Step 0: Business Basics ────────────────────────────────────
+  // ─── Step 0: Business Basics ────────────────────────────────
   const renderStep0 = () => (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
@@ -415,14 +491,14 @@ export default function OnboardingPage() {
                 </button>
               )}
             </div>
-            {urlAnalyzed && <p className="mt-2 text-sm text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Website analyzed — we&apos;ll use this to enhance your profile</p>}
+            {urlAnalyzed && <p className="mt-2 text-sm text-emerald-600 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Website analyzed. We will use this to enhance your profile.</p>}
           </div>
         </div>
       </div>
     </div>
   );
 
-  // ─── Step 1: Voice Path Selection ───────────────────────────────
+  // ─── Step 1: Voice Path Selection ───────────────────────────
   const renderVoicePathSelection = () => (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="text-center mb-6">
@@ -439,7 +515,7 @@ export default function OnboardingPage() {
             </div>
             <div className="flex-1">
               <h4 className="text-lg font-bold text-gray-900 mb-1">Answer 6 Questions</h4>
-              <p className="text-gray-500 text-sm mb-3">Simple questions anyone can answer — about your business, customers, and opinions. No marketing expertise needed. We extract your positioning, pain points, competitive angle, and voice from your answers.</p>
+              <p className="text-gray-500 text-sm mb-3">Simple questions anyone can answer, about your business, customers, and opinions. No marketing expertise needed. We extract your positioning, pain points, competitive angle, and voice from your answers.</p>
               <div className="flex items-center gap-4 text-xs text-gray-400">
                 <span className="flex items-center gap-1"><Target className="w-3 h-3 text-blue-400" /> Best for most users</span>
                 <span>~3 minutes</span>
@@ -492,7 +568,29 @@ export default function OnboardingPage() {
     </div>
   );
 
-  // ─── Questions Path (PRIMARY) ───────────────────────────────────
+  // ─── Error Banner ───────────────────────────────────────────
+  const renderErrorBanner = () => {
+    if (!profileError) return null;
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-xl p-4 mt-4 animate-in fade-in duration-300">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-red-700">Profile build failed</p>
+            <p className="text-sm text-red-600 mt-1">{profileError}</p>
+          </div>
+          <button
+            onClick={() => { setProfileError(null); buildVoiceProfile(); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-sm font-medium transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" /> Retry
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // ─── Questions Path (PRIMARY) ───────────────────────────────
   const renderQuestionsPath = () => {
     const questions = [
       { key: 'sell', value: qWhatYouSell, setter: setQWhatYouSell, label: 'What do you sell and how much does it cost?', placeholder: 'e.g., We sell fractional CFO services to SaaS companies for $5K-$15K/month', icon: Lightbulb, hint: 'Don\'t overthink it. Just tell us like you\'d tell a friend.' },
@@ -513,7 +611,7 @@ export default function OnboardingPage() {
         </div>
 
         <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-4">
-          <p className="text-sm text-blue-700"><strong>Why these questions?</strong> Every answer becomes fuel for your content. Your objection handling becomes LinkedIn posts. Your customer story becomes case studies. Your contrarian take becomes Twitter threads. Answer honestly — the AI uses these in every piece of content it generates.</p>
+          <p className="text-sm text-blue-700"><strong>Why these questions?</strong> Every answer becomes fuel for your content. Your objection handling becomes LinkedIn posts. Your customer story becomes case studies. Your contrarian take becomes Twitter threads. Answer honestly, the AI uses these in every piece of content it generates.</p>
         </div>
 
         <div className="space-y-5">
@@ -537,15 +635,23 @@ export default function OnboardingPage() {
         </div>
 
         <button onClick={buildVoiceProfile} disabled={buildingProfile || answeredCount < 3} className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-4">
-          {buildingProfile ? <><Loader2 className="w-4 h-4 animate-spin" /> Building Your Profile...</> : voiceBuilt ? <><CheckCircle2 className="w-4 h-4" /> Profile Built</> : <><Sparkles className="w-4 h-4" /> Build My Voice &amp; Strategy Profile</>}
+          {buildingProfile ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Building Your Profile (this takes ~15 seconds)...</>
+          ) : voiceBuilt ? (
+            <><CheckCircle2 className="w-4 h-4" /> Profile Built Successfully</>
+          ) : (
+            <><Sparkles className="w-4 h-4" /> Build My Voice &amp; Strategy Profile</>
+          )}
         </button>
+
+        {renderErrorBanner()}
 
         {voiceBuilt && voiceProfile && renderProfileCard('blue')}
       </div>
     );
   };
 
-  // ─── Interview Path ─────────────────────────────────────────────
+  // ─── Interview Path ─────────────────────────────────────────
   const renderInterviewPath = () => (
     <div className="space-y-4 animate-in fade-in duration-500">
       <div className="flex items-center justify-between mb-2">
@@ -597,8 +703,15 @@ export default function OnboardingPage() {
         ) : (
           <div className="border-t border-gray-100 p-4">
             <button onClick={buildVoiceProfile} disabled={buildingProfile} className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70">
-              {buildingProfile ? <><Loader2 className="w-4 h-4 animate-spin" /> Building Your Profile...</> : voiceBuilt ? <><CheckCircle2 className="w-4 h-4" /> Profile Built</> : <><Sparkles className="w-4 h-4" /> Build My Voice &amp; Strategy Profile</>}
+              {buildingProfile ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Building Your Profile (this takes ~15 seconds)...</>
+              ) : voiceBuilt ? (
+                <><CheckCircle2 className="w-4 h-4" /> Profile Built Successfully</>
+              ) : (
+                <><Sparkles className="w-4 h-4" /> Build My Voice &amp; Strategy Profile</>
+              )}
             </button>
+            {renderErrorBanner()}
           </div>
         )}
       </div>
@@ -607,7 +720,7 @@ export default function OnboardingPage() {
     </div>
   );
 
-  // ─── Paste Path ─────────────────────────────────────────────────
+  // ─── Paste Path ─────────────────────────────────────────────
   const renderPastePath = () => (
     <div className="space-y-6 animate-in fade-in duration-500">
       <button onClick={() => setVoicePath(null)} className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"><ArrowLeft className="w-3.5 h-3.5" /> Choose different method</button>
@@ -621,14 +734,21 @@ export default function OnboardingPage() {
         ))}
         {samples.length < 5 && <button onClick={() => setSamples([...samples, ''])} className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">+ Add another sample</button>}
         <button onClick={buildVoiceProfile} disabled={buildingProfile || !samples[0]?.trim()} className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50">
-          {buildingProfile ? <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing...</> : voiceBuilt ? <><CheckCircle2 className="w-4 h-4" /> Profile Built</> : <><Sparkles className="w-4 h-4" /> Analyze &amp; Build Profile</>}
+          {buildingProfile ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Analyzing (this takes ~15 seconds)...</>
+          ) : voiceBuilt ? (
+            <><CheckCircle2 className="w-4 h-4" /> Profile Built Successfully</>
+          ) : (
+            <><Sparkles className="w-4 h-4" /> Analyze &amp; Build Profile</>
+          )}
         </button>
+        {renderErrorBanner()}
       </div>
       {voiceBuilt && voiceProfile && renderProfileCard('emerald')}
     </div>
   );
 
-  // ─── Profile Card (shared) ──────────────────────────────────────
+  // ─── Profile Card (shared) ──────────────────────────────────
   const renderProfileCard = (color: string) => (
     <div className={cn('rounded-2xl border p-6 animate-in fade-in slide-in-from-bottom-4 duration-500', color === 'blue' ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-100' : color === 'amber' ? 'bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100' : 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-100')}>
       <div className="flex items-center gap-2 mb-4">
@@ -691,7 +811,7 @@ export default function OnboardingPage() {
     </div>
   );
 
-  // ─── Step 1 Router ──────────────────────────────────────────────
+  // ─── Step 1 Router ──────────────────────────────────────────
   const renderStep1 = () => {
     if (!voicePath) return renderVoicePathSelection();
     if (voicePath === 'questions') return renderQuestionsPath();
@@ -699,7 +819,7 @@ export default function OnboardingPage() {
     return renderPastePath();
   };
 
-  // ─── Step 2: Channels ───────────────────────────────────────────
+  // ─── Step 2: Channels ───────────────────────────────────────
   const renderStep2 = () => (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
@@ -719,7 +839,7 @@ export default function OnboardingPage() {
     </div>
   );
 
-  // ─── Step 3: First Content ──────────────────────────────────────
+  // ─── Step 3: First Content ──────────────────────────────────
   const renderStep3 = () => (
     <div className="space-y-6 animate-in fade-in duration-500">
       {!firstContent && !generatingFirst && (
@@ -743,7 +863,7 @@ export default function OnboardingPage() {
       {firstContent && (
         <div className="space-y-4">
           <div className="text-center mb-2">
-            <h3 className="text-lg font-bold text-gray-900">The &ldquo;Holy Shit&rdquo; Moment</h3>
+            <h3 className="text-lg font-bold text-gray-900">The Moment of Truth</h3>
             <p className="text-sm text-gray-500">Same topic. Same AI. Completely different output.</p>
           </div>
 
@@ -843,7 +963,7 @@ export default function OnboardingPage() {
         {renderCurrentStep()}
 
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
-          <button onClick={() => { if (step === 1 && voicePath) { setVoicePath(null); setVoiceBuilt(false); setVoiceProfile(null); } else { setStep(Math.max(0, step - 1)); } }} disabled={step === 0 && !voicePath} className="flex items-center gap-2 px-5 py-2.5 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"><ArrowLeft className="w-4 h-4" /> Back</button>
+          <button onClick={() => { if (step === 1 && voicePath) { setVoicePath(null); setVoiceBuilt(false); setVoiceProfile(null); setProfileError(null); } else { setStep(Math.max(0, step - 1)); } }} disabled={step === 0 && !voicePath} className="flex items-center gap-2 px-5 py-2.5 text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-sm font-medium"><ArrowLeft className="w-4 h-4" /> Back</button>
           {step < 3 ? (
             <button onClick={() => setStep(step + 1)} disabled={!canProceed()} className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm font-semibold shadow-sm">Continue <ArrowRight className="w-4 h-4" /></button>
           ) : (

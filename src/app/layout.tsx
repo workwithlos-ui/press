@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Content Factory — Anti-Slop Content Engine",
+  title: "Content Factory - Anti-Slop Content Engine",
   description: "Context-engineered content that sounds like you, not ChatGPT. Brand voice DNA, audience profiles, creator frameworks, and a 12-rule anti-slop system.",
   keywords: ["content marketing", "AI content", "anti-slop", "context engineering", "brand voice"],
 };

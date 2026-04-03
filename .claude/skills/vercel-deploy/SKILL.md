@@ -30,11 +30,11 @@ Repo: workwithlos-ui/[repo-name]
 Action: [Push files to existing repo / Create new repo / Create new Vercel project]
 
 FILES CHANGED:
-- [path/to/file.ts] — [what changed]
-- [path/to/file.ts] — [what changed]
+- [path/to/file.ts] - [what changed]
+- [path/to/file.ts] - [what changed]
 
 COMMIT MESSAGE:
-"[verb]: [what changed and why — one clear sentence]"
+"[verb]: [what changed and why - one clear sentence]"
 
 VERCEL:
 - Project: [existing project name OR "create new project"]
@@ -45,8 +45,8 @@ VERCEL:
 
 POST-DEPLOY TEST:
 1. Go to: [specific URL]
-2. Do: [specific action — fill form / click button / open page]
-3. Expect: [what success looks like — specific, not "it should work"]
+2. Do: [specific action - fill form / click button / open page]
+3. Expect: [what success looks like - specific, not "it should work"]
 
 REPORT BACK:
 - Confirm deploy succeeded
@@ -68,6 +68,6 @@ Push files from [zip file name]
 ## GOTCHAS
 - New repos need BOTH a GitHub repo AND a Vercel project created
 - Private repos (elios-os) need explicit confirmation before pushing
-- FORGE needs BOTH env vars — Anthropic + OpenAI
-- Always include a specific test step — not "test it" but exactly what to click and what to expect
+- FORGE needs BOTH env vars - Anthropic + OpenAI
+- Always include a specific test step - not "test it" but exactly what to click and what to expect
 - Manus should report back with pass/fail on the test, not just "deployed"

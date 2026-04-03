@@ -18,7 +18,7 @@ Check in order:
 
 **IMPORTANT (flag):**
 - Console.log in production code
-- SPCL weights changed from canonical (S=0.18, P=0.20, C=0.15, L=0.10)
+- GRIP weights changed from canonical (G=0.18, R=0.20, I=0.15, P=0.10)
 - Anti-slop rulebook modified without instruction
 
 **ELIOS LAW VIOLATIONS:**

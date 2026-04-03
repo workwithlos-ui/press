@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const client = new OpenAI();
+import { getOpenAIClient } from '@/lib/openai-client';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { answers, industry, company, targetAudience } = body;
+
+    if (!answers || typeof answers !== 'object') {
+      return NextResponse.json(
+        { error: 'Missing or invalid answers in request body.' },
+        { status: 400 }
+      );
+    }
+
+    const client = getOpenAIClient();
 
     const systemPrompt = `You are a $50,000/year brand strategist conducting a discovery session. The user has answered basic questions about their business. Your job is to extract a complete Brand Intelligence Profile from their answers.
 
@@ -99,13 +106,53 @@ Extract the complete Brand Intelligence Profile as JSON with these exact keys:
     try {
       profile = JSON.parse(cleaned);
     } catch {
-      // If JSON parse fails, return a structured error with the raw text
-      return NextResponse.json({ error: 'Failed to parse profile', raw: cleaned }, { status: 500 });
+      // Try to extract JSON from the response
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          profile = JSON.parse(jsonMatch[0]);
+        } catch {
+          return NextResponse.json(
+            { error: 'The AI returned an invalid response. Please try again.' },
+            { status: 500 }
+          );
+        }
+      } else {
+        return NextResponse.json(
+          { error: 'The AI returned an invalid response. Please try again.' },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({ profile });
   } catch (error: any) {
     console.error('Extract profile error:', error);
-    return NextResponse.json({ error: error.message || 'Failed to extract profile' }, { status: 500 });
+
+    // Provide user-friendly error messages
+    const message = error.message || 'Failed to extract profile';
+    if (message.includes('API key') || message.includes('401') || message.includes('Unauthorized')) {
+      return NextResponse.json(
+        { error: 'AI service authentication failed. Please check your API key configuration.' },
+        { status: 500 }
+      );
+    }
+    if (message.includes('429') || message.includes('rate limit')) {
+      return NextResponse.json(
+        { error: 'AI service is temporarily busy. Please wait a moment and try again.' },
+        { status: 429 }
+      );
+    }
+    if (message.includes('timeout') || message.includes('ECONNREFUSED')) {
+      return NextResponse.json(
+        { error: 'Could not reach the AI service. Please check your connection and try again.' },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: message },
+      { status: 500 }
+    );
   }
 }

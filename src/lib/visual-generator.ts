@@ -1,4 +1,4 @@
-// Visual Asset Generator — Client-side Canvas Rendering
+// Visual Asset Generator - Client-side Canvas Rendering
 import { VisualType } from '@/types';
 
 export interface VisualConfig {
@@ -347,7 +347,7 @@ export function generateLinkedInCarousel(config: VisualConfig): string[] {
     ctx.fillText(config.brandName, 60, 68);
 
     if (isFirst) {
-      // Hook slide — large text
+      // Hook slide - large text
       ctx.font = 'bold 64px system-ui, -apple-system, sans-serif';
       ctx.fillStyle = config.colors.text;
       ctx.textAlign = 'left';

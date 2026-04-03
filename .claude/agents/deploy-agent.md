@@ -48,4 +48,4 @@ Check: Vercel → [project] → Settings → Environment Variables
 - Never push directly to a private repo without confirming with Los first
 - New repos need a Vercel project created AND linked to GitHub
 - Vercel auto-deploys only work when the repo is connected
-- Always include the test steps — Manus should be able to verify without asking
+- Always include the test steps - Manus should be able to verify without asking

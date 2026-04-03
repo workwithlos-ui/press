@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const client = new OpenAI();
+
 
 const ANTI_SLOP_RULEBOOK = `
 ANTI-SLOP RULES (MANDATORY):
-1. Lead with the specific — never a general statement.
-2. Use irregular rhythm — vary sentence length drastically.
-3. Make claims, don't hedge — no "potentially," "might," "some people."
-4. Name names and numbers — exact amounts, timeframes, examples.
-5. Inject voice markers — fragments, "And"/"But" starters, abrupt shifts.
-6. Disagree with something — contrarian stance without validating the other side.
-7. Include the failure — mistakes and pivots that preceded success.
-8. Delete the first paragraph — start with what would have been paragraph 2.
-9. Power openings only — specific number, bold claim, challenging question, or mid-action story.
-10. One idea, fully explored — depth over breadth.
-11. End with tension — provocative question or challenge, not a summary.
+1. Lead with the specific - never a general statement.
+2. Use irregular rhythm - vary sentence length drastically.
+3. Make claims, don't hedge - no "potentially," "might," "some people."
+4. Name names and numbers - exact amounts, timeframes, examples.
+5. Inject voice markers - fragments, "And"/"But" starters, abrupt shifts.
+6. Disagree with something - contrarian stance without validating the other side.
+7. Include the failure - mistakes and pivots that preceded success.
+8. Delete the first paragraph - start with what would have been paragraph 2.
+9. Power openings only - specific number, bold claim, challenging question, or mid-action story.
+10. One idea, fully explored - depth over breadth.
+11. End with tension - provocative question or challenge, not a summary.
 12. NEVER use: crucial, vital, essential, paramount, pivotal, transformative, revolutionary, game-changing, groundbreaking, cutting-edge, innovative, robust, comprehensive, holistic, synergistic, leverage, unlock, harness, foster, cultivate, empower, navigate, delve, landscape, testament, realm, tapestry, multifaceted, nuanced, paradigm.
 `;
 
@@ -79,6 +79,7 @@ function buildContext(voiceDNA: any, examples: any[], audienceProfile: any, bran
 export async function POST(req: NextRequest) {
   try {
     const { sourceContent, targetPlatforms, creatorFramework, voiceDNA, examples, audienceProfile, brandProfile } = await req.json();
+    const client = getOpenAIClient();
     const context = buildContext(voiceDNA, examples, audienceProfile, brandProfile);
 
     const promises = (targetPlatforms || ['linkedin', 'twitter', 'email']).map(async (platform: string) => {

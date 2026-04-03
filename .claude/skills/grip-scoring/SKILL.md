@@ -1,11 +1,11 @@
 ---
-name: spcl-scoring
-description: Score any content on the SPCL framework and return routing decision. Use this skill when generating, reviewing, or optimizing any content piece for 33V products.
+name: grip-scoring
+description: Score any content on the GRIP framework and return routing decision. Use this skill when generating, reviewing, or optimizing any content piece for 33V products.
 user-invocable: true
 model: sonnet
 ---
 
-# SPCL Scoring Skill
+# GRIP Scoring Skill
 
 Score content on Hormozi's influence framework. Used by all 33V products.
 
@@ -13,10 +13,10 @@ Score content on Hormozi's influence framework. Used by all 33V products.
 Total = (0.18×S + 0.20×P + 0.15×C + 0.10×L + 0.12×ICP + 0.10×CVR + 0.08×PLT + 0.05×NOV − 0.08×RISK) × 10
 
 ## Pillars
-**S — Status (18%):** Shows control of scarce resources or enviable outcomes. Named deals, equity stakes, live URLs.
-**P — Power (20% — HIGHEST):** Gives specific directions likely to produce results. Before/after proof, exact frameworks, specific numbers.
-**C — Credibility (15%):** Third-party validation. Named clients (Kent Clothier, Trusted Roofing). Specific metrics.
-**L — Likeness (10%):** Authentic, founder-real. The "stopped hiring" story. Builder not consultant.
+**S - Status (18%):** Shows control of scarce resources or enviable outcomes. Named deals, equity stakes, live URLs.
+**P - Power (20% - HIGHEST):** Gives specific directions likely to produce results. Before/after proof, exact frameworks, specific numbers.
+**C - Credibility (15%):** Third-party validation. Named clients (Kent Clothier, Trusted Roofing). Specific metrics.
+**L - Likeness (10%):** Authentic, founder-real. The "stopped hiring" story. Builder not consultant.
 
 ## Routing
 - 90+ → PUBLISH auto
@@ -44,7 +44,7 @@ leverage, synergy, game-changer, revolutionary, unlock, empower,
 "at the end of the day", "in today's landscape", "I'm excited to share"
 
 ## Gotchas
-- P is almost always the weakest — fix it first
+- P is almost always the weakest - fix it first
 - "A client said" = 0 points on C. Must have a name.
 - Opening with generic statement = −5 on P immediately
 - Opening with specific number or named result = +3 on P

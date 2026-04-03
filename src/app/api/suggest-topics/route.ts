@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const client = new OpenAI();
+
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const client = getOpenAIClient();
     const { brandProfile, industry, company, targetAudience } = body;
 
     const systemPrompt = `You are a content strategist who has generated $10M+ in attributed pipeline through organic content. You don't think in "topics." You think in "content that moves people closer to buying."

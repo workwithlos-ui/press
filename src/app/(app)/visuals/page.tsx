@@ -193,12 +193,12 @@ export default function VisualsPage() {
             </div>
             Visual Asset Generator
           </h1>
-          <p className="text-slate-500 mt-1">Create branded visuals from your content — carousels, quote cards, headers, and more.</p>
+          <p className="text-slate-500 mt-1">Create branded visuals from your content - carousels, quote cards, headers, and more.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Left Panel — Controls */}
+        {/* Left Panel - Controls */}
         <div className="lg:col-span-2 space-y-4">
           {/* Source Content */}
           <div className="card p-5 space-y-4">
@@ -331,7 +331,7 @@ export default function VisualsPage() {
           </button>
         </div>
 
-        {/* Right Panel — Preview & Library */}
+        {/* Right Panel - Preview & Library */}
         <div className="lg:col-span-3 space-y-4">
           {/* Preview */}
           <div className="card p-5">

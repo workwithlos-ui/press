@@ -52,18 +52,18 @@ For the given topic, determine:
 1. STRATEGIC ANGLE: What's the specific, ownable angle on this topic that aligns with their positioning? Not the obvious take. The take that makes their ideal customer think "finally, someone gets it."
 
 2. FRAMEWORK SELECTION: Which of these 12 frameworks fits best for each platform?
-   - PAS (Problem, Agitate, Solve) — best when the pain is acute
-   - Before/After/Bridge — best for transformation stories
-   - Contrarian Take + Proof — best for authority building
-   - "Most people think X. Here's what actually works." — best for LinkedIn
-   - Story + Lesson + Action — best for emotional connection
-   - Data + Insight + Application — best when you have numbers
-   - Question + Answer + Framework — best for educational content
-   - Myth-Busting — best for differentiation
-   - Step-by-Step Tactical — best for high-save/bookmark content
-   - Case Study — best for trust building
-   - Prediction + Preparation — best for thought leadership
-   - Old Way vs New Way — best for selling change
+   - PAS (Problem, Agitate, Solve) - best when the pain is acute
+   - Before/After/Bridge - best for transformation stories
+   - Contrarian Take + Proof - best for authority building
+   - "Most people think X. Here's what actually works." - best for LinkedIn
+   - Story + Lesson + Action - best for emotional connection
+   - Data + Insight + Application - best when you have numbers
+   - Question + Answer + Framework - best for educational content
+   - Myth-Busting - best for differentiation
+   - Step-by-Step Tactical - best for high-save/bookmark content
+   - Case Study - best for trust building
+   - Prediction + Preparation - best for thought leadership
+   - Old Way vs New Way - best for selling change
 
 3. EMOTIONAL HOOK: What specific emotion should the opening trigger? Fear of missing out? Recognition of a pain they've been ignoring? Curiosity about a counterintuitive claim? Relief that someone finally named their problem?
 
@@ -117,7 +117,7 @@ You are a Twitter strategist who has built 10 accounts past 100K followers. You 
 Write a 5-7 tweet thread for the user (Brand Intelligence Profile provided).
 
 RULES:
-- Tweet 1 (the hook): Must work as a standalone viral tweet. Bold claim + specific number or timeframe. "I've analyzed 500 sales calls this year. The reps who close at 40%+ all do one thing differently:" — that level of specificity.
+- Tweet 1 (the hook): Must work as a standalone viral tweet. Bold claim + specific number or timeframe. "I've analyzed 500 sales calls this year. The reps who close at 40%+ all do one thing differently:" - that level of specificity.
 - Each subsequent tweet must deliver ONE specific insight, tactic, or example. Not filler. If a tweet doesn't teach something or advance the argument, delete it.
 - Use the "1 tweet = 1 idea" rule. Never cram two concepts into one tweet.
 - Include at least one tweet with a specific example, case study, or data point.

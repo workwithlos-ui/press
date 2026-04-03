@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const client = new OpenAI();
+
 
 export async function POST(request: NextRequest) {
   try {
+    const client = getOpenAIClient();
     const body = await request.json();
     const { company, industry, targetAudience, voiceSummary, voiceCharacteristics, businessProfile, brandIntelligence } = body;
 

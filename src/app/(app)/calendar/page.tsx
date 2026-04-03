@@ -519,7 +519,7 @@ export default function CalendarPage() {
                     {projects.slice(0, 10).map(proj => (
                       proj.pieces.map((piece, idx) => (
                         <option key={`${proj.id}::${idx}`} value={`${proj.id}::${idx}`}>
-                          {proj.title.slice(0, 40)} — {PLATFORMS.find(p => p.key === piece.platform)?.label}
+                          {proj.title.slice(0, 40)} - {PLATFORMS.find(p => p.key === piece.platform)?.label}
                         </option>
                       ))
                     ))}

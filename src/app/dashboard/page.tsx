@@ -119,7 +119,7 @@ export default function DashboardPage() {
         </div>
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-3"><Star className="w-4 h-4 text-amber-400" /><span className="text-xs font-medium text-slate-500">Avg Quality</span></div>
-          <p className={cn('text-3xl font-bold', stats.avgQualityScore >= 7 ? 'text-emerald-400' : stats.avgQualityScore > 0 ? 'text-amber-400' : 'text-slate-600')}>{stats.avgQualityScore > 0 ? stats.avgQualityScore : '—'}</p>
+          <p className={cn('text-3xl font-bold', stats.avgQualityScore >= 7 ? 'text-emerald-400' : stats.avgQualityScore > 0 ? 'text-amber-400' : 'text-slate-600')}>{stats.avgQualityScore > 0 ? stats.avgQualityScore : '-'}</p>
         </div>
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-3"><Calendar className="w-4 h-4 text-violet-400" /><span className="text-xs font-medium text-slate-500">Scheduled Posts</span></div>

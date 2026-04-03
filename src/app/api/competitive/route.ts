@@ -69,7 +69,7 @@ ANALYSIS RULES:
 - Base analysis on the ACTUAL page content provided. If page content is available, use it directly.
 - If page content is empty, infer from domain name and industry context.
 - Be specific, tactical, and revenue-focused in your analysis.
-- Content briefs must be genuinely useful — specific angles that would outperform the competitor.
+- Content briefs must be genuinely useful - specific angles that would outperform the competitor.
 - Never fabricate specific traffic metrics. Focus on strategic positioning gaps.
 - Output ONLY valid JSON. No markdown, no code blocks, no preamble.`;
 

@@ -7,7 +7,7 @@ export interface SharedContext {
   proof_bank: any[];
   voice: any;
   platform_specs: Record<string, any>;
-  spcl_weights: Record<string, number>;
+  grip_weights: Record<string, number>;
   offers: any[];
   constraints: string[];
 }
@@ -39,7 +39,7 @@ export async function fetchSharedContext(contextKey = 'default'): Promise<Shared
       proof_bank: row.proof_bank,
       voice: row.voice,
       platform_specs: row.platform_specs,
-      spcl_weights: row.spcl_weights,
+      grip_weights: row.grip_weights || row.spcl_weights,
       offers: row.offers,
       constraints: row.constraints,
     };
@@ -61,7 +61,7 @@ Primary Offer: ${ctx.business.primary_offer}
 Constraints: ${ctx.constraints.join(' | ')}
 
 OFFERS:
-${ctx.offers.map((o: any) => `- ${o.name}: $${o.setup} setup + $${o.monthly}/mo — ${o.desc}`).join('\n')}
+${ctx.offers.map((o: any) => `- ${o.name}: $${o.setup} setup + $${o.monthly}/mo - ${o.desc}`).join('\n')}
 
 TARGET AUDIENCES:
 ${ctx.audiences.map((a: any) => `[${a.id}] ${a.name} (Spend: $${a.spend_level})\n  Pains: ${a.top_pains.join('; ')}\n  Desired Outcomes: ${a.desired_outcomes.join('; ')}\n  Objections: ${a.objections.join('; ')}\n  Buying Triggers: ${a.buying_triggers.join('; ')}`).join('\n\n')}

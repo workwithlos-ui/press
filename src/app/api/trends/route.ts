@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const client = new OpenAI();
+
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const client = getOpenAIClient();
     const { voiceDNA, audienceProfile, brandProfile, competitors, currentDate } = body;
 
     // Build context from user's configured data
@@ -86,7 +87,7 @@ RULES:
 - Urgency should reflect actual timeliness: "hot" = act within 24-48 hours, "warm" = this week, "evergreen" = anytime
 - Suggested angles must be specific and actionable, not generic
 - Platform suggestions should match the content type (e.g., hot takes on Twitter, thought leadership on LinkedIn, tutorials on blog)
-- Make the "whyTrending" compelling and specific — not generic statements
+- Make the "whyTrending" compelling and specific - not generic statements
 - Each idea should be different enough to warrant its own piece of content
 - For competitor insights, suggest content that directly counters or outperforms what competitors would post`;
 

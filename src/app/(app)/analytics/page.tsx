@@ -98,7 +98,7 @@ export default function AnalyticsPage() {
           },
           {
             label: 'Avg Quality Score',
-            value: stats.avgQualityScore > 0 ? stats.avgQualityScore.toFixed(1) : '—',
+            value: stats.avgQualityScore > 0 ? stats.avgQualityScore.toFixed(1) : '-',
             change: '+0.3',
             positive: true,
             icon: Star,
@@ -163,7 +163,7 @@ export default function AnalyticsPage() {
             {weeklyData.map((week, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
                 <span className="text-xs font-semibold text-slate-700">
-                  {week.avgScore > 0 ? week.avgScore : '—'}
+                  {week.avgScore > 0 ? week.avgScore : '-'}
                 </span>
                 <div
                   className="w-full rounded-t-lg bg-amber-400 transition-all"
@@ -235,9 +235,9 @@ export default function AnalyticsPage() {
             </p>
             <div className="grid grid-cols-3 gap-4 max-w-sm">
               {[
-                { label: 'Pipeline Influenced', value: '$—' },
-                { label: 'Deals Attributed', value: '—' },
-                { label: 'Content ROI', value: '—x' },
+                { label: 'Pipeline Influenced', value: '$-' },
+                { label: 'Deals Attributed', value: '-' },
+                { label: 'Content ROI', value: '-x' },
               ].map((item, i) => (
                 <div key={i} className="text-center">
                   <p className="text-lg font-bold text-white/40">{item.value}</p>

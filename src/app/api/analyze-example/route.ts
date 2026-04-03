@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const client = new OpenAI();
+
 
 export async function POST(req: NextRequest) {
   try {
     const { content } = await req.json();
+    const client = getOpenAIClient();
 
     const response = await client.chat.completions.create({
       model: 'gpt-4.1-mini',

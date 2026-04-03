@@ -1,17 +1,17 @@
 ---
 name: score
-description: Score any content piece on SPCL and get routing + rewrite guidance
+description: Score any content piece on GRIP and get routing + rewrite guidance
 ---
 
-Score this content on the SPCL framework for 33V / Los Silva / ELIOS.
+Score this content on the GRIP framework for 33V / Los Silva / ELIOS.
 
-Use the spcl-scoring skill.
+Use the grip-scoring skill.
 
 Content to score: $ARGUMENTS
 
 Return:
 - S score (0-10): Status
-- P score (0-10): Power — HIGHEST WEIGHT
+- P score (0-10): Power - HIGHEST WEIGHT
 - C score (0-10): Credibility
 - L score (0-10): Likeness
 - Total score (0-100)

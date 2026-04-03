@@ -1,4 +1,4 @@
-# Content Factory — Architecture
+# Content Factory - Architecture
 
 ## 7-Command AI Pipeline
 

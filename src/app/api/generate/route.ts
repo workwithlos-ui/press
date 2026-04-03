@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAIClient } from '@/lib/openai-client';
 import { fetchSharedContext, formatContextForPrompt } from '@/lib/shared-context';
 
-const client = new OpenAI();
+
 
 type AIModel = 'gpt-4.1-mini' | 'gemini-2.5-flash';
 
@@ -22,44 +22,44 @@ function resolveModel(platform: string, preference: string): AIModel {
 
 // ─── THE ANTI-SLOP RULEBOOK (12 Rules) ──────────────────────
 const ANTI_SLOP_RULEBOOK = `
-## THE ANTI-SLOP RULEBOOK — MANDATORY FOR ALL CONTENT
+## THE ANTI-SLOP RULEBOOK - MANDATORY FOR ALL CONTENT
 
 You MUST follow every single one of these 12 rules. Violation of ANY rule means the content fails.
 
-RULE 1 — LEAD WITH THE SPECIFIC
+RULE 1 - LEAD WITH THE SPECIFIC
 Never start with a general statement. Open with a specific data point, personal story, or contrarian claim. NOT "Content marketing is important." YES "$47,000 in pipeline from a single LinkedIn post. Here's the exact framework."
 
-RULE 2 — USE IRREGULAR RHYTHM
+RULE 2 - USE IRREGULAR RHYTHM
 Vary sentence and paragraph length drastically. Include one-word paragraphs. No perfectly balanced 3-point structures. Mix 3-word sentences with 25-word sentences. Create rhythm that feels human, not templated.
 
-RULE 3 — MAKE CLAIMS, DON'T HEDGE
+RULE 3 - MAKE CLAIMS, DON'T HEDGE
 Eliminate "potentially," "might," "some people," "it's worth noting," "it's important to remember." Take definitive stances. NOT "This might help improve your results." YES "This doubles your conversion rate."
 
-RULE 4 — NAME NAMES AND NUMBERS
+RULE 4 - NAME NAMES AND NUMBERS
 Use exact dollar amounts, timeframes, named examples. Never generic placeholders. NOT "a successful company" YES "Stripe" or "when we hit $2M ARR."
 
-RULE 5 — INJECT VOICE MARKERS
+RULE 5 - INJECT VOICE MARKERS
 Use intentional sentence fragments. Start sentences with "And" or "But." Use abrupt topic shifts. Write like a human who has opinions, not a language model trying to be helpful.
 
-RULE 6 — DISAGREE WITH SOMETHING
+RULE 6 - DISAGREE WITH SOMETHING
 Present a strong opinion that contradicts conventional wisdom. Don't immediately validate the opposing view. Take a side. NOT "While there are many approaches..." YES "Most content advice is wrong. Here's why."
 
-RULE 7 — INCLUDE THE FAILURE
+RULE 7 - INCLUDE THE FAILURE
 Include mistakes, pivots, embarrassments that preceded success. Vulnerability is what separates human content from AI slop.
 
-RULE 8 — DELETE THE FIRST PARAGRAPH
+RULE 8 - DELETE THE FIRST PARAGRAPH
 Your first draft's first paragraph is almost always throat-clearing. Delete it. Start with what was your second paragraph.
 
-RULE 9 — USE POWER OPENINGS ONLY
+RULE 9 - USE POWER OPENINGS ONLY
 Allowed opening patterns: (a) A specific number or data point, (b) A bold contrarian claim, (c) A question that challenges assumptions, (d) A short story that starts in the middle of action. BANNED openings: "In today's...", "Have you ever...", "As a...", "When it comes to...", "In the world of..."
 
-RULE 10 — ONE IDEA, FULLY EXPLORED
+RULE 10 - ONE IDEA, FULLY EXPLORED
 Don't cover 7 shallow points. Cover 1 point with extreme depth. Go deeper than any reader expects.
 
-RULE 11 — END WITH TENSION, NOT SUMMARY
+RULE 11 - END WITH TENSION, NOT SUMMARY
 Don't wrap up neatly. Leave the reader with a provocative question, a challenge, or an open loop. NOT "In conclusion, these 5 steps will help you..." YES "The question isn't whether this works. It's whether you'll actually do it."
 
-RULE 12 — THE SLOP LEXICON — NEVER USE THESE WORDS/PHRASES
+RULE 12 - THE SLOP LEXICON - NEVER USE THESE WORDS/PHRASES
 BANNED WORDS: crucial, vital, essential, paramount, pivotal, transformative, revolutionary, game-changing, groundbreaking, cutting-edge, innovative, robust, comprehensive, holistic, synergistic, leverage, unlock, harness, foster, cultivate, empower, navigate, delve, landscape, testament, realm, tapestry, multifaceted, nuanced, paradigm, streamline, spearhead, optimize (as buzzword), ecosystem (unless literal), deep dive (as noun), at the end of the day, when it comes to, in today's fast-paced world, it goes without saying, needless to say, in order to, the fact that, it is important to note, it's worth mentioning, as we all know, in the ever-evolving landscape.
 BANNED PATTERNS: Starting with "In today's...", Using em dashes excessively, Three-part parallel structures ("X, Y, and Z" repeated), Ending with "What do you think?", Starting with "Let me tell you..."
 `;
@@ -148,8 +148,8 @@ FRAMEWORK: FERRISS RECIPE METHOD
 Structure your content as an intensely practical recipe:
 1. Start with the specific outcome this recipe produces (with numbers if possible).
 2. List exact tools, resources, or prerequisites needed.
-3. Give step-by-step instructions with EXACT details — specific tools, specific settings, specific scripts, specific templates.
-4. Include the "minimum effective dose" — the 20% of effort that produces 80% of results.
+3. Give step-by-step instructions with EXACT details - specific tools, specific settings, specific scripts, specific templates.
+4. Include the "minimum effective dose" - the 20% of effort that produces 80% of results.
 5. Add troubleshooting notes for common failure points.
 Every sentence must be actionable. Zero theory. Zero motivation. Pure tactical execution.`,
 
@@ -181,7 +181,7 @@ LINKEDIN RULES:
 - First line MUST be a pattern interrupt. A bold claim, a specific number, or a statement that creates cognitive dissonance.
 - Use short paragraphs (1-3 sentences max). White space is your weapon.
 - Include a specific framework, process, or tactical insight the reader can implement today.
-- End with a question that invites meaningful comments. Not "What do you think?" — something specific.
+- End with a question that invites meaningful comments. Not "What do you think?" - something specific.
 - NO hashtags in the body. Put 3-5 relevant hashtags as the very last line.
 - NO emojis in the first 3 lines. Max 3 total, only as bullet markers.
 - Length: 150-250 words.`,
@@ -331,7 +331,7 @@ BRAND INTELLIGENCE PROFILE:
 - Authority Markers: ${(brandProfile.authorityMarkers || []).join('; ')}
 - Content Angles: ${(brandProfile.contentAngles || []).slice(0, 5).join('; ')}
 ${brandProfile.voiceDNA ? `
-VOICE DNA (CRITICAL — this defines how the content MUST sound):
+VOICE DNA (CRITICAL - this defines how the content MUST sound):
 - Voice Summary: ${brandProfile.voiceDNA.summary || ''}
 - Energy Signature: ${brandProfile.voiceDNA.energySignature || 'Professional'}
 - Vocabulary Level: ${brandProfile.voiceDNA.vocabularyLevel || 'Conversational'}
@@ -384,6 +384,7 @@ export async function POST(req: NextRequest) {
       brandVoiceSummary, businessProfile,
     } = body;
 
+    const client = getOpenAIClient();
     const profileData = brandIntelligence || brandProfile || {};
     const userModelPref = modelPreference || 'auto';
     const utmBaseUrl = baseUrl || 'https://example.com';
@@ -396,7 +397,7 @@ ${formatContextForPrompt(sharedCtx)}
 === END SHARED INTELLIGENCE ===
 ` : '';
 
-    // Build full context — user's localStorage data overrides shared context
+    // Build full context - user's localStorage data overrides shared context
     const voiceDNAContext = buildVoiceDNAContext(voiceDNA);
     const examplesContext = buildExamplesContext(examples);
     const audienceContext = buildAudienceContext(audienceProfile);

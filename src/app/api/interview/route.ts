@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-const client = new OpenAI();
+import { getOpenAIClient } from '@/lib/openai-client';
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +49,8 @@ The JSON should follow this structure:
 }
 
 IMPORTANT: Only include the <PROFILE_JSON> tags when you have gathered ALL 6 answers. Before that, just have a natural conversation.`;
+
+    const client = getOpenAIClient();
 
     const chatMessages = [
       { role: 'system' as const, content: systemPrompt },

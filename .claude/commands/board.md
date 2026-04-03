@@ -1,6 +1,6 @@
 ---
 name: board
-description: Run a QUORUM board briefing — all 5 agents respond to one strategic question
+description: Run a QUORUM board briefing - all 5 agents respond to one strategic question
 ---
 
 Run a QUORUM board briefing on this question: $ARGUMENTS
@@ -11,7 +11,7 @@ Agent responses:
 
 **Rex (Revenue):** What does the pipeline math say? What's the revenue-first recommendation?
 
-**Maya (Growth):** What's the content/brand/channel angle? What would SPCL say about the current positioning?
+**Maya (Growth):** What's the content/brand/channel angle? What would GRIP say about the current positioning?
 
 **Nova (Ops):** What's the systems and process perspective? What's the bottleneck?
 
